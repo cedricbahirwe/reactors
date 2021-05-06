@@ -1,13 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  React.createElement("ul",
+   { style: { color: "blue"}},
+    React.createElement("li", null, "Leo"),
+    React.createElement("li", null, "Kesho"),
+    React.createElement("li", null, "Yake"),
+    ),
   document.getElementById('root')
 );
 

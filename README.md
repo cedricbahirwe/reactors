@@ -8,7 +8,7 @@
 ## Take aways:
 
 - **Day 1,2,3,4:** React Components introduction, JSX , ES6 Syntax.
-- **Day 5,6:** Data Drive Components(Props, State), `setState()` function
+- **Day 5,6,7,8:** Data Drive Components(Props, State), `setState()` function, LifeCycle Hooks, PropTypes.
 
 
 ### Run the app in the development mode: `npm start`

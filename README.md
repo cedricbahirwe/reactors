@@ -1,5 +1,5 @@
-# reactors
-A container for react ideas
+# Reactors
+### A container for ReactJS Learning Links and Resources
 # React Tutorials
 
 - The course can be found at: https://www.newline.co/fullstack-react/30-days-of-react/

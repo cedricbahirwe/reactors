@@ -1,127 +1,119 @@
 ---
-page_id: 30-days-of-react/day-4
+page_id: 30-days-of-react/day-7
 series: 30-days-of-react
-permalink: day-4
-title: Complex Components
+permalink: day-7
+title: Lifecycle Hooks
 description: >-
-  Awesome, we've built our first component. Now let's get a bit fancier and
-  start building a more complex interface.
-hero_image: /assets/images/series/30-days-of-react/headings/4.jpg
-imageUrl: /assets/images/series/30-days-of-react/headings/4.jpg
-dayDir: "04"
-day: 4
-introBannerUrl: /assets/images/series/30-days-of-react/headings/4_wide.jpg
-date: "Fri Oct 07 2016 21:29:42 GMT-0700 (PDT)"
-imagesDir: /assets/images/series/30-days-of-react/day-4
+  <blockquote class="warning"> <b>NOTE</b>: This post is about <em>classic</em> React Lifecycle hooks.<br/> If you're looking to learn about the <a href="https://www.fullstackreact.com/articles/an-introduction-to-hooks-in-react/"><b>new Hooks API</b> then click here</a> </blockquote> Today, we'll look through a few of the most common lifecycle hooks we can use
+  with React components and we'll discuss why they are useful and when we should each one.
+dayDir: "07"
+day: 7
+hero_image: /assets/images/series/30-days-of-react/headings/7.jpg
+imageUrl: /assets/images/series/30-days-of-react/headings/7.jpg
+introBannerUrl: /assets/images/series/30-days-of-react/headings/7_wide.jpg
+date: "Wed Oct 10 2016 21:29:42 GMT-0700 (PDT)"
+imagesDir: /assets/images/series/30-days-of-react/day-7
 includeFile: ./../_params.yaml
 ---
 
-In the previous section of _30 Days of React_, we started building our first React component. In this section, we'll continue our work with our `App` component and start building a more complex UI.
+Congrats! We've made it to the end of the first week on React and we've already covered so much ground. We just finished working with stateful components to keep track of a component's internal state. Today, we're going to pause on implementation and talk a bit about how a component _lives_ in an application. That is, we'll talk about the component's lifecycle.
 
-A common web element we might see is a user timeline. For instance, we might have an application that shows a history of events happening such as applications like Facebook and Twitter.
+As React mounts our application, it gives us some hooks where we can insert our own functionality at different times in the component's lifecycle. In order to _hook into_ the lifecycle, we'll need to define functions on our component which React calls at the appropriate time for each hook. Let's dive into the first lifecycle hook:
 
-> ## Styles
->
-> As we're not focusing on [CSS](https://www.w3.org/standards/webdesign/htmlcss) in this course, we're not covering the CSS specific to build the timeline as you see it on the screen.
->
-> However, we want to make sure the timeline you build looks similar to ours. If you include the following CSS as a `<link />` tag in your code, your timeline will look similar and will be using the same styling ours is using:
->
-> ```html
-> <link
->   href="https://cdn.jsdelivr.net/gh/fullstackreact/30-days-of-react@master/day-04/public/Timeline.css"
->   rel="stylesheet"
->   type="text/css"
-> />
-> ```
->
-> And make sure to surround your code in a component with the class of `demo` (we left it this way purposefully as it's the _exact_ same code we use in all the demos here). Check out the [https://jsfiddle.net/auser/zwomnfwk/](https://jsfiddle.net/auser/zwomnfwk/) for a working example.
->
-> The entire compiled CSS can be found on the github repository at [https://github.com/fullstackreact/30-days-of-react/blob/master/day-04/public/Timeline.css](https://github.com/fullstackreact/30-days-of-react/blob/master/day-04/public/Timeline.css).
->
-> In addition, in order to make the timeline look _exactly_ like the way ours does on the site, you'll need to include [font-awesome](http://fontawesome.io/) in your web application. There are multiple ways to handle this. The simplest way is to include the link styles:
->
-> ```html
-> <link
->   href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
->   rel="stylesheet"
->   type="text/css"
-> />
-> ```
->
-> _All_ the code for the examples on the page is available at the [github repo (at https://github.com/fullstackreact/30-days-of-react)](https://github.com/fullstackreact/30-days-of-react).
+### `componentWillMount()` / `componentDidMount()`
 
-We _could_ build this entire UI in a single component. However, building an entire application in a single component is not a great idea as it can grow huge, complex, and difficult to test.
+When a component is defined on a page in our application, we can't depend upon it being available in the DOM immediately as we're defining virtual nodes. Instead, we have to wait until the component itself has actually _mounted_ in the browser. For functionality that we need to run when it has been mounted, we get two different _hooks_ (or functions) we can define. One that is called just before the component is due to be mounted on the page and one that is called just after the component has been mounted.
 
-```html
-class Timeline extends React.Component {
+> ### What does `mounting` mean?
+>
+> Since we're defining _virtual representations_ of nodes in our DOM tree with React, we're not actually defining DOM nodes. Instead, we're building up an in-memory view that React maintains and manages for us. When we talk about _mounting_, we're talking about the process of converting the virtual components into actual DOM elements that are placed in the DOM by React.
+
+This is useful for things such as fetching data to populate the component. For instance, let's say that we want to use our activity tracker to display github events, for example. We will want to load these events only when the data itself is going to be rendered.
+
+Recall we defined our `Content` component in our activity list:
+
+```javascript
+class Content extends React.Component {
   render() {
+    const { activities } = this.props; // ES6 destructuring
+
     return (
-      <div className="notificationsFrame">
-        <div className="panel">
-          <div className="header">
+      <div className="content">
+        <div className="line" />
 
-            <div className="menuIcon">
-              <div className="dashTop"></div>
-              <div className="dashBottom"></div>
-              <div className="circle"></div>
-            </div>
+        {/* Timeline item */}
+        {activities.map(activity => (
+          <ActivityItem activity={activity} />
+        ))}
+      </div>
+    );
+  }
+}
+```
 
-            <span className="title">Timeline</span>
+Let's update the `Content` component to make a request to the [github.com events api](https://developer.github.com/v3/activity/events/) and use the response to display the activities. As such, we'll need to update the `state` of the object.
 
-            <input
-              type="text"
-              className="searchInput"
-              placeholder="Search ..." />
+<div class="demo" id="demo1"></div>
 
-            <div className="fa fa-search searchIcon"></div>
-          </div>
-          <div className="content">
-            <div className="line"></div>
-            <div className="item">
+As we did yesterday, let's update our component to be stateful by setting `this.state` to an object in the constructor
 
-              <div className="avatar">
-                <img
-                alt='doug'
-                src="http://www.croop.cl/UI/twitter/images/doug.jpg" />
-              </div>
+```javascript
+class Content extends React.Component {
+  constructor(props) {
+    super(props);
 
-              <span className="time">
-                An hour ago
-              </span>
-              <p>Ate lunch</p>
-            </div>
+    this.state = {
+      activities: []
+    };
+  }
 
-            <div className="item">
-              <div className="avatar">
-                <img
-                  alt='doug' src="http://www.croop.cl/UI/twitter/images/doug.jpg" />
-              </div>
+  // ...
+}
+```
 
-              <span className="time">10 am</span>
-              <p>Read Day two article</p>
-            </div>
+Now, we'll want to make an HTTP request when the component itself is getting ready to be mounted (or just after it mounts). By defining the function `componentWillMount()` (or `componentDidMount()`) in our component, React runs the method just before it mounts in the DOM. This is a perfect spot for us to add a `GET` request.
 
-            <div className="item">
-              <div className="avatar">
-                <img
-                  alt='doug' src="http://www.croop.cl/UI/twitter/images/doug.jpg" />
-              </div>
+Let's update the `Content` component with the request to the github api. Since we'll only want to display a small list, let's take the latest four events.
 
-              <span className="time">10 am</span>
-              <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
-            </div>
+> We've stored a static JSON file of github data that we'll load directly from source here (we'll get back to making AJAX requests in a few days) using promises. For now, let's focus on how we'll implement updating our component with new data:
 
-            <div className="item">
-              <div className="avatar">
-                <img
-                  alt='doug' src="http://www.croop.cl/UI/twitter/images/doug.jpg" />
-              </div>
+```javascript
+class Content extends React.Component {
+  // ...
+  componentWillMount() {
+    this.setState({ activities: data });
+  }
+  // ...
+}
+```
 
-              <span className="time">2:21 pm</span>
-              <p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
-            </div>
+> Let's also update our `ActivityItem` component  slightly to reflect our new `activity` object structure.
+> We're also using [Moment.js](https://momentjs.com/) library to format the dates into a human friendly string e.g `30 min ago`
+> To include it in your file, add the following `script` tag to your document
+> ```html
+> <script src="https://unpkg.com/moment@2.24.0/min/moment.min.js"></script>
+>```
 
-          </div>
+```javascript
+class ActivityItem extends React.Component {
+  render() {
+    const { activity } = this.props;
+
+    return (
+      <div className='item'>
+        <div className={'avatar'}>
+          <img
+            alt='avatar'
+            src={activity.actor.avatar_url} />
+        </div>
+
+        <span className={'time'}>
+          {moment(activity.created_at).fromNow()}
+        </span>
+        
+        <p>{activity.actor.display_login} {activity.payload.action}</p>
+        <div className={'right'}>
+          {activity.repo.name}
         </div>
       </div>
     )
@@ -129,141 +121,67 @@ class Timeline extends React.Component {
 }
 ```
 
-<div class="demo" id="demo1"></div>
+Notice that we didn't change anything else from our `Content` component and it just works.
 
-## Breaking it down
+<div class="demo" id="fetchedTimeline"></div>
 
-Rather than build this in a single component, let's break it down into multiple components.
+### `componentWillUpdate()` / `componentDidUpdate()`
 
-Looking at this component, there are 2 separate parts to the larger component as a whole:
+Sometimes we'll want to update some data of our component before or after we change the actual rendering. For instance, let's say we want to call a function to set up the rendering or call a function set when a component's props are changed. The `componentWillUpdate()` method is a reasonable hook to handle preparing our component for a change (as long as we don't call `this.setState()` to handle it as it will cause an infinite loop).
 
-1. The title bar
-2. The content
+Since we won't really need to handle this in-depth, we won't worry about setting up an example here, but it's good to know it exists. A more common lifecycle hook we'll use is the `componentWillReceiveProps()` hook.
 
-<img class="wide" src="/assets/series/30-days-of-react/images/04/breakdown.png" />
+### `componentWillReceiveProps()`
 
-We can chop up the content part of the component into individual places of concern. There are 3 different _item_ components inside the content part.
+React will call a method when the component is about to receive new `props`. This is the first method that will be called when a component is going to receive a new set of props. Defining this method is a good time to look for updates to specific `props` as it gives us an opportunity to calculate changes and update our component's internal state.
 
-<img class="wide" src="/assets/series/30-days-of-react/images/04/breakdown-2.png" />
+This is the time when we can update our state based on new props.
 
-> If we wanted to go one step further, we could even break down the title bar into 3 component parts, the _menu_ button, the _title_, and the _search_ icon. We could dive even further into each one of those if we needed to.
->
-> Deciding how deep to split your components is more of an art than a science and is a skill you'll develop with experience.
+> One thing to keep in mind here is that even though the `componentWillReceiveProps()` method gets called, the value of the `props` may not have changed. It's _always_ a good idea to check for changes in the prop values.
 
-In any case, it's usually a good idea to start looking at applications using the idea of _components_. By breaking our app down into components it becomes easier to test and easier to keep track of what functionality goes where.
+For instance, let's add a _refresh_ button to our activity list so our users can request a rerequest of the github events api.
 
-## The container component
+We'll use the `componentWillReceiveProps()` hook to ask the component to reload it's data. As our component is stateful, we'll want to refresh this state with new data, so we can't simply update the `props` in a component. We can use the `componentWillReceiveProps()` method to _tell_ the component we want a refresh.
 
-To build our notifications app, let's start by building the container to hold the entire app. Our container is simply going to be a wrapper for the other two components.
-
-None of these components will require special functionality (yet), so they will look similar to our `HelloWorld` component in that it's just a component with a single render function.
-
-Let's build a wrapper component we'll call `App` that might look similar to this:
+Let's add a button on our containing element that passes a `requestRefresh` boolean prop to tell the `Content` component to refresh.
 
 ```javascript
-class App extends React.Component {
-  render() {
-    return (
-      <div className="notificationsFrame">
-        <div className="panel">{/* content goes here */}</div>
-      </div>
-    );
+class Container extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { refreshing: false };
   }
-}
-```
 
-> Notice that we use the attribute called `className` in React instead of the HTML version of `class`. Remember that we're not writing to the DOM directly and thus not writing HTML, but JSX (which is just JavaScript).
->
-> The reason we use `className` is because `class` is a reserved word in JavaScript. If we use `class`, we'll get an error in our console.
-
-## Child components
-
-When a component is nested inside another component, it's called a _child_ component. A component can have multiple children components. The component that uses a child component is then called it's _parent_ component.
-
-With the wrapper component defined, we can build our `title` and `content` components by, essentially, grabbing the source from our original design and putting the source file into each component.
-
-For instance, the header component looks like this, with a container element `<div className="header">`, the menu icon, a title, and the search bar:
-
-```javascript
-class Header extends React.Component {
-  render() {
-    return (
-      <div className="header">
-        <div className="menuIcon">
-          <div className="dashTop"></div>
-          <div className="dashBottom"></div>
-          <div className="circle"></div>
-        </div>
-        <span className="title">Timeline</span>
-
-        <input type="text" className="searchInput" placeholder="Search ..." />
-
-        <div className="fa fa-search searchIcon"></div>
-      </div>
-    );
+  // Bound to the refresh button
+  refresh() {
+    this.setState({ refreshing: true });
   }
-}
-```
 
-<div class="demo" id="headerDemo"></div>
-
-And finally, we can write the `Content` component with timeline items. Each timeline item is wrapped in a single component, has an avatar associated with it, a timestamp, and some text.
-
-```javascript
-class Content extends React.Component {
-  render() {
-    return (
-      <div className="content">
-        <div className="line"></div>
-
-        {/* Timeline item */}
-        <div className="item">
-          <div className="avatar">
-            <img
-              alt="Doug"
-              src="http://www.croop.cl/UI/twitter/images/doug.jpg"
-            />
-            Doug
-          </div>
-
-          <span className="time">An hour ago</span>
-          <p>Ate lunch</p>
-          <div className="commentCount">2</div>
-        </div>
-
-        {/* ... */}
-      </div>
-    );
+  // Callback from the `Content` component
+  onComponentRefresh() {
+    this.setState({ refreshing: false });
   }
-}
-```
 
-> In order to write a comment in a React component, we have to place it in the brackets as a multi-line comment in JavaScript.
->
-> Unlike the HTML comment that looks like this:
->
-> ```html
-> <!-- this is a comment in HTML -->
-> ```
->
-> the React version of the comment must be in brackets:
->
-> ```html
-> {/* This is a comment in React */}
-> ```
-
-## Putting it all together
-
-Now that we have our two _children_ components, we can set the `Header` and the `Content` components to be _children_ of the `App` component. Our `App` component can then use these components _as if they are HTML elements built-in to the browser_. Our new `App` component, with a header and content now looks like:
-
-```javascript
-class App extends React.Component {
   render() {
+    const { refreshing } = this.state;
     return (
       <div className="notificationsFrame">
         <div className="panel">
-          <Header />
-          <Content />
+          <Header title="Github activity" />
+          {/* refreshing is the component's state */}
+          <Content
+            onComponentRefresh={this.onComponentRefresh.bind(this)}
+            requestRefresh={refreshing}
+            fetchData={fetchEvents}
+          />
+          {/* A container for styling */}
+          <Footer>
+            <button onClick={this.refresh.bind(this)}>
+              <i className="fa fa-refresh" />
+              Refresh
+            </button>
+          </Footer>
         </div>
       </div>
     );
@@ -271,19 +189,123 @@ class App extends React.Component {
 }
 ```
 
-<div class="demo" id="demo2"></div>
-
-> Note!
+> ## `<Footer />`
 >
-> Don't forget to call `ReactDOM.render` to place your app on the page
->
-> ```javascript
-> var mountComponent = document.querySelector("#app");
-> ReactDOM.render(<App />, mountComponent);
-> ```
+> Notice that we have a new element here that displays the children of the element. This is a pattern which allows us to add a CSS class around some content.
 
-With this knowledge, we now have the ability to write multiple components and we can start to build more complex applications.
+```javascript
+class Footer extends React.Component {
+  render() {
+    return <div className="footer">{this.props.children}</div>;
+  }
+}
+```
 
-However, you may notice that this app does not have any user interaction nor custom data. In fact, as it stands right now our React application isn't that much easier to build than straight, no-frills HTML.
+Using this new `prop` (the `requestRefresh` prop), we can update the `activities` from our `state` object when it changes value.
 
-In the next section, we'll look how to make our component more dynamic and become _data-driven_ with React.
+```javascript
+class Content extends React.Component {
+  constructor {
+    this.state = {
+      activities: [],
+      loading: false // <~ set loading to false
+    };
+  }
+  // ...  
+  updateData() {
+    this.setState(
+      {
+        loading: false,
+        activities: data.sort(() => 0.5 - Math.random()).slice(0, 4)
+      },
+      this.props.onComponentRefresh
+    );
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    // Check to see if the requestRefresh prop has changed
+    if (nextProps.requestRefresh === true) {
+      this.setState({ loading: true }, this.updateData);
+    }
+  }
+  // ...
+}
+```
+
+Let's also update our `componentWillMount` method to call `this.updateData()` instead of `this.setState`
+
+```javascript
+  class Content extends React.Component {
+    // ...
+    componentDidMount() {
+      this.updateData();
+    }
+    // ...
+  }
+```
+
+<div class="demo" id="requestRefresh"></div>
+
+> This demo is using static data from a JSON file and randomly picking four elements when we refresh. This is set up to _simulate_ a refresh.
+
+## `componentWillUnmount()`
+
+Before the component is unmounted, React will call out to the `componentWillUnmount()` callback. This is the time to handle any clean-up events we might need, such as clearing timeouts, clearing data, disconnecting websockets, etc.
+
+For instance, with our clock component we worked on last time, we set a timeout to be called every second. When the component is ready to unmount, we want to make sure we clear this timeout so our JavaScript doesn't continue running a timeout for components that don't actually exist.
+
+Recall that our `timer` component we built looks like this:
+
+```javascript
+class Clock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = this.getTime();
+  }
+
+  componentDidMount() {
+    this.setTimer();
+  }
+
+  setTimer() {
+    this.timeout = setTimeout(this.updateClock.bind(this), 1000);
+  }
+
+  updateClock() {
+    this.setState(this.getTime, this.setTimer);
+  }
+
+  getTime() {
+    const currentTime = new Date();
+    return {
+      hours: currentTime.getHours(),
+      minutes: currentTime.getMinutes(),
+      seconds: currentTime.getSeconds(),
+      ampm: currentTime.getHours() >= 12 ? "pm" : "am"
+    };
+  }
+
+  // ...
+  render() {}
+}
+```
+
+When our clock is going to be unmounted, we'll want to clear the timeout we create in the `setTimer()` function on the component. Adding the `componentWillUnmount()` function takes care of this necessary cleanup.
+
+```javascript
+class Clock extends React.Component {
+  // ...
+  componentWillUnmount() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+  }
+  // ...
+}
+```
+
+<div class="demo" id="clock"></div>
+
+These are a few of the lifecycle hooks we can interact with in the React framework. We'll be using these a lot as we build our react apps, so it's a good idea to be familiar with them, that they exist, and how to hook into the life of a component.
+
+We did introduce one new concept in this post which we glossed over: we added a callback on a component to be called from the child to it's parent component. In the next section, we're going to look at how to define and document the `prop` API of a component for usage when sharing a component across teams and an application in general.

@@ -25,4 +25,8 @@ class Header extends React.Component {
     }
 }
 
+Header.defaultProps = {
+    title: 'No title',
+    age: 33
+}
 export default Header;

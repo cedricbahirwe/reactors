@@ -3,11 +3,11 @@ import './Content.css';
 import Header from './Header';
 import Content from './Content';
 import Footer from './Footer';
-import Data from './data';
 
 class Container extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = { refreshing: false };
     }
 
@@ -26,7 +26,7 @@ class Container extends React.Component {
         return (
             <div className="notificationsFrame">
                 <div className="panel">
-                    <Header title={Data.data} />
+                    <Header title="Github activity" />
                     {/* refreshing is the component's state */}
                     <Content
                         onComponentRefresh={this.onComponentRefresh.bind(this)}

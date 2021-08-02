@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class Clock extends React.Component {
     constructor(props) {
@@ -46,5 +47,18 @@ class Clock extends React.Component {
         );
     }
 }
+
+Clock.propTypes = {
+    basicObject: PropTypes.object.isRequired,
+
+    numbers: PropTypes.objectOf(PropTypes.numbers),
+
+    messages: PropTypes.instanceOf(Message),
+
+    contactList: PropTypes.shape({
+        name: PropTypes.string,
+        phone: PropTypes.string
+    })
+};
 
 export default Clock;

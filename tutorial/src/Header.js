@@ -3,15 +3,26 @@ import './Content.css';
 
 class Header extends React.Component {
     render() {
+        const wrapperStyle = {
+            backgroundColor: "rgba(0, 0, 43, 1)"
+        };
+
+        const titleStyle = {
+            color: "#f5f5f5"
+        };
+
+        const menuColor = {
+            backgroundColor: "#f5f5f5"
+        };
         return (
-            <div className="header">
+            <div style={wrapperStyle} className="header">
                 <div className="menuIcon">
-                    <div className="dashTop"></div>
-                    <div className="dashBottom"></div>
-                    <div className="circle"></div>
+                    <div className="dashTop" style={menuColor}></div>
+                    <div className="dashBottom" style={menuColor}></div>
+                    <div className="circle" style={menuColor}></div>
                 </div>
 
-                <span className="title">{this.props.title}</span>
+                <span className="title" style={titleStyle}>{this.props.title}</span>
 
                 <input
                     type="text"
@@ -19,7 +30,7 @@ class Header extends React.Component {
                     placeholder="Search ..."
                 />
 
-                <div className="fa fa-search searchIcon"></div>
+                <div style={titleStyle} className="fa fa-search searchIcon"></div>
             </div>
         );
     }

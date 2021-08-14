@@ -1,7 +1,20 @@
 import React from 'react';
 import './Content.css';
+import PropTypes from 'prop-types';
+import SearchForm from './SearchForm';
 
 class Header extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            searchVisible: false
+        }
+    }
+
+    showSearch() {
+        this.setState({ searchVisible: !this.state.searchVisible })
+    }
     render() {
         const wrapperStyle = {
             backgroundColor: "rgba(0, 0, 43, 1)"
@@ -14,6 +27,7 @@ class Header extends React.Component {
         const menuColor = {
             backgroundColor: "#f5f5f5"
         };
+
         return (
             <div style={wrapperStyle} className="header">
                 <div className="menuIcon">
@@ -24,16 +38,21 @@ class Header extends React.Component {
 
                 <span className="title" style={titleStyle}>{this.props.title}</span>
 
-                <input
-                    type="text"
-                    className="searchInput"
-                    placeholder="Search ..."
+                <SearchForm
+                    searchVisible={this.state.searchVisible}
+                    onSubmit={this.props.onSearch}
                 />
 
-                <div style={titleStyle} className="fa fa-search searchIcon"></div>
+                <div style={titleStyle}
+                    className="fa fa-search searchIcon"
+                    onClick={this.showSearch.bind(this)}></div>
             </div>
         );
     }
+}
+
+Header.propTypes = {
+    onSearch: PropTypes.func
 }
 
 Header.defaultProps = {

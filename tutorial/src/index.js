@@ -2,12 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 // import './index.css';
 // import App from './App';
-import Container from './Container'
+// import Container from './Container'
+import Panel from './Panel';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Container />
+    <Panel />
   </React.StrictMode>,
   document.getElementById('app')
 );

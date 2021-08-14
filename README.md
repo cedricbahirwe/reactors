@@ -9,6 +9,7 @@ A container for react ideas
 
 - **Day 1,2,3,4:** React Components introduction, JSX , ES6 Syntax.
 - **Day 5,6,7,8:** Data Drive Components(Props, State), `setState()` function, LifeCycle Hooks, PropTypes.
+- **Day 9, 10** Styling Components with CSS, Inline Styles and Styling Libraries(e.g: Radium); Interactivity
 
 
 ### Run the app in the development mode: `npm start`

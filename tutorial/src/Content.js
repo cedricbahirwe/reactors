@@ -1,6 +1,5 @@
 import React from 'react';
 import './Content.css';
-// import './styles.css'
 import data from './data';
 import ActivityItem from './ActivityItem';
 
